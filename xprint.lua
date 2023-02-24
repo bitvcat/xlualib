@@ -60,7 +60,7 @@ local function _tdump(root, depthMax, excludeKeys, excludeTypes, noAlignLine)
             end
         end
     end
-    _dump(root, align1, empty, 0)
+    _dump(root, align1, empty, 1)
     temp[#temp+1] = bktR
     return concat(temp, sep)
 end
@@ -110,7 +110,7 @@ local function debug_print(...)
     end
 end
 --print = debug_print
---[[
+
 -- test
 local cat = {
     name = "cat",
@@ -135,5 +135,4 @@ local domi = {
 table.insert(domi.addrbooks, domi)
 
 --xprint(1, 2, 3, domi)
-table.print(domi, -1)
---]]
+table.print(domi, 2)
