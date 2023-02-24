@@ -3,18 +3,14 @@
 -- @param depthMax int dump 深度,默认3层[可选]
 -- @param excludeKeys table 排除指定键且值为table的元素[可选]
 -- @param excludeTypes table 排除指定的值类型元素[可选]
--- @param alignType int 对齐线生成类型(0=无对齐线;-1=压缩成一行;无参数=有对齐线)[可选]
-local function _tdump(root, depthMax, excludeKeys, excludeTypes, alignType)
+-- @param noAlignLine bool 是否生成对齐线,默认生成[可选]
+local function _tdump(root, depthMax, excludeKeys, excludeTypes, noAlignLine)
     if type(root) ~= "table" then return root end
     depthMax = depthMax or 3
     local concat = table.concat
     local eq, bktL, bktR, bktRC, comma, empty, ellipsis, sep = " = ", "{", "}", "},", ",", "", "...", "\n"
     local align1, align2 = "    ", "|   "
-    if alignType == 0 then
-        align2 = align1
-    elseif alignType == -1 then
-        align1, align2, sep = empty, empty, empty
-    end
+    if noAlignLine then align2 = align1 end
 
     local cache = { [root] = "." }
     local temp = {bktL}
