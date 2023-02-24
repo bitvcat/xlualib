@@ -3,15 +3,22 @@
 -- @param depthMax int dump 深度,默认3层[可选]
 -- @param excludeKeys table 排除指定键且值为table的元素[可选]
 -- @param excludeTypes table 排除指定的值类型元素[可选]
--- @param noAlignLine bool 是否生成对齐线,默认生成[可选]
-local function _tdump(root, depthMax, excludeKeys, excludeTypes, noAlignLine)
+-- @param alignType int 对齐线生成类型(0=无对齐线;-1=压缩成一行;无参数=有对齐线)[可选]
+local function _tdump(root, depthMax, excludeKeys, excludeTypes, alignType)
     if type(root) ~= "table" then return root end
     depthMax = depthMax or 3
     local concat = table.concat
-    local eq, bktL, bktR, bktRC, comma, empty, ellipsis, align1, align2 = " = ", "{", "}", "},", ",", "", "...", "    ", "|   "
+    local eq, bktL, bktR, bktRC, comma, empty, ellipsis, sep = " = ", "{", "}", "},", ",", "", "...", "\n"
+    local align1, align2 = "    ", "|   "
+    if alignType == 0 then
+        align2 = align1
+    elseif alignType == -1 then
+        align1, align2, sep = empty, empty, empty
+    end
 
     local cache = { [root] = "." }
     local temp = {bktL}
+    local valtb = {'\"', '', '\"'}
     local keytb1, keytb2 = {"[", "", "]"}, {"[\"", "", "\"]"}
     local function _dump(t, space, name, depth)
         local indent1, indent2 = space .. align1, space .. align2
@@ -38,7 +45,7 @@ local function _tdump(root, depthMax, excludeKeys, excludeTypes, noAlignLine)
                         if next(v) then
                             -- 非空table
                             temp[#temp+1] = concat({space, keyBkt, eq, bktL})
-                            local indent = (noAlignLine or isLast) and indent1 or indent2
+                            local indent = isLast and indent1 or indent2
                             _dump(v, indent, new_key, depth+1)
                             temp[#temp+1] = concat({space, tbktR})
                         else
@@ -49,7 +56,8 @@ local function _tdump(root, depthMax, excludeKeys, excludeTypes, noAlignLine)
             else
                 if not excludeTypes or not excludeTypes[vType] then
                     if vType == "string" then
-                        v = '\"' .. string.gsub(v, "\"", "\\\"") .. '\"'
+                        valtb[2] = string.gsub(v, "\"", "\\\"")
+                        v = concat(valtb)
                     end
                     temp[#temp+1] = concat({space, keyBkt, eq, tostring(v), endMark})
                 end
@@ -58,7 +66,7 @@ local function _tdump(root, depthMax, excludeKeys, excludeTypes, noAlignLine)
     end
     _dump(root, align1, empty, 0)
     temp[#temp+1] = bktR
-    return concat(temp, "\n")
+    return concat(temp, sep)
 end
 
 local _print = _G.print
@@ -106,9 +114,8 @@ local function debug_print(...)
     end
 end
 --print = debug_print
-
--- test
 --[[
+-- test
 local cat = {
     name = "cat",
     sex = "man",
@@ -132,5 +139,5 @@ local domi = {
 table.insert(domi.addrbooks, domi)
 
 --xprint(1, 2, 3, domi)
-table.print(domi, -1, nil, nil, false)
+table.print(domi, -1)
 --]]
