@@ -69,16 +69,11 @@ local function _getcallstack(level)
     end
 end
 
--- 树型打印一个 table,不用担心循环引用
--- depthMax 打印层数控制，默认3层（-1表示无视层数）
--- excludeKey 排除打印的key
--- excludeType 排除打印的值类型
--- noAlignLine 不打印对齐线
-table.print = function(root, depthMax, excludeKey, excludeType, noAlignLine)
+table.print = function(root, ...)
     if type(root) ~= "table" then
         _print(root)
     else
-        _print(_tdump(root, depthMax, excludeKey, excludeType, noAlignLine))
+        _print(_tdump(root, ...))
     end
 end
 
